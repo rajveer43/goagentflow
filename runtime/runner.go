@@ -1,11 +1,11 @@
-package goagentflow
+package runtime
 
 import (
 	"context"
 	"time"
 
-	"goagentflow/internal/idempotency"
-	"goagentflow/internal/stream"
+	"github.com/rajveer43/goagentflow/internal/idempotency"
+	"github.com/rajveer43/goagentflow/internal/stream"
 )
 
 type Runner struct {
@@ -63,10 +63,12 @@ func (r *Runner) execute(ctx context.Context, agent Agent, state *State, runCfg 
 	if runCfg.maxSteps <= 0 {
 		runCfg.maxSteps = 1
 	}
-	_ = idempotency.NewKey()
+	// Generate and propagate TraceID for this run
+	traceID := idempotency.NewKey()
+	ctx = context.WithValue(ctx, "traceID", traceID)
 	for step := 0; step < runCfg.maxSteps; step++ {
 		if err := ctx.Err(); err != nil {
-			events.TryEmit(RuntimeEvent{Type: RuntimeEventError, Timestamp: time.Now(), Payload: ErrContextCanceled, Step: step})
+			r.emit(ctx, events, RuntimeEvent{Type: RuntimeEventError, Timestamp: time.Now(), Payload: ErrContextCanceled, Step: step})
 			return
 		}
 		state.Step = step
@@ -118,9 +120,19 @@ func (r *Runner) execute(ctx context.Context, agent Agent, state *State, runCfg 
 	r.emit(ctx, events, RuntimeEvent{Type: RuntimeEventError, Timestamp: time.Now(), Payload: ErrMaxStepsExceeded, Step: runCfg.maxSteps})
 }
 
+// emit sends an event through the stream and notifies all observers.
+// The traceID parameter is passed via context to maintain the execution trace.
 func (r *Runner) emit(ctx context.Context, events *stream.EventStream, event RuntimeEvent) {
+	// Extract TraceID from context if available
+	if traceID, ok := ctx.Value("traceID").(string); ok {
+		event.TraceID = traceID
+	}
 	events.TryEmit(event)
 	for _, observer := range r.cfg.Observers {
 		observer.Observe(ctx, event)
+	}
+	// Also record metrics if metrics observer is configured
+	if r.cfg.Metrics != nil {
+		r.cfg.Metrics.Observe(ctx, event)
 	}
 }

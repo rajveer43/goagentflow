@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"goagentflow/memory/inmemory"
+	"github.com/rajveer43/goagentflow/memory/inmemory"
 )
 
 func TestMemory(t *testing.T) {

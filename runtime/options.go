@@ -1,6 +1,9 @@
-package goagentflow
+package runtime
 
-import "log"
+import (
+	"context"
+	"log"
+)
 
 type Logger interface {
 	Printf(format string, args ...any)
@@ -10,6 +13,10 @@ type Tracer interface {
 	StartSpan(name string) func()
 }
 
+type MetricsRecorder interface {
+	Observe(ctx context.Context, event RuntimeEvent)
+}
+
 type Config struct {
 	MaxSteps    int
 	Logger      Logger
@@ -17,6 +24,8 @@ type Config struct {
 	Memory      Memory
 	RetryPolicy RetryPolicy
 	Observers   []Observer
+	LLM         LLM
+	Metrics     MetricsRecorder
 }
 
 type Option func(*Config)
@@ -43,6 +52,14 @@ func WithRetryPolicy(policy RetryPolicy) Option {
 
 func WithObserver(observer Observer) Option {
 	return func(cfg *Config) { cfg.Observers = append(cfg.Observers, observer) }
+}
+
+func WithLLM(llm LLM) Option {
+	return func(cfg *Config) { cfg.LLM = llm }
+}
+
+func WithMetrics(metrics MetricsRecorder) Option {
+	return func(cfg *Config) { cfg.Metrics = metrics }
 }
 
 func DefaultConfig() Config {

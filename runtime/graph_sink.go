@@ -1,6 +1,6 @@
-package goagentflow
+package runtime
 
-import "goagentflow/internal/stream"
+import "github.com/rajveer43/goagentflow/internal/stream"
 
 type streamSink struct {
 	stream *stream.EventStream

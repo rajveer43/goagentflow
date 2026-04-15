@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"goagentflow/runtime"
+	"github.com/rajveer43/goagentflow/runtime"
 )
 
 type Memory struct {

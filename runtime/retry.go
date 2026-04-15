@@ -1,10 +1,10 @@
-package goagentflow
+package runtime
 
 import (
 	"context"
 	"time"
 
-	"goagentflow/internal/backoff"
+	"github.com/rajveer43/goagentflow/internal/backoff"
 )
 
 type RetryPolicy struct {

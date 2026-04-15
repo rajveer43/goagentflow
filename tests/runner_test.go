@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"goagentflow/runtime"
+	"github.com/rajveer43/goagentflow/runtime"
 )
 
 type testAgent struct {

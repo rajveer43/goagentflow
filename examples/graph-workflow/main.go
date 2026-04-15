@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"goagentflow/runtime"
+	"github.com/rajveer43/goagentflow/runtime"
 )
 
 func main() {
