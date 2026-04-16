@@ -1,13 +1,14 @@
 package loader
 
-import "context"
+import (
+	"context"
 
-// Document represents a loaded chunk of content from any source.
-// Pattern: mirrors LangChain's document structure
-type Document struct {
-	PageContent string         // the actual text content
-	Metadata    map[string]any // source, page number, content-type, etc.
-}
+	"github.com/rajveer43/goagentflow/types"
+)
+
+// Document is an alias to types.Document for backward compatibility.
+// This allows existing code to use loader.Document while avoiding circular imports.
+type Document = types.Document
 
 // Loader is the single interface all loaders implement.
 // Pattern: Strategy — swap sources freely
